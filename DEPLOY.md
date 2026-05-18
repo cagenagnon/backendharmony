@@ -74,9 +74,12 @@ LOG_CHANNEL=stderr
 QUEUE_CONNECTION=database
 CACHE_STORE=database
 FEDAPAY_MODE=live
+SESSION_DRIVER=file
 FRONTEND_URL=https://harmonybymdn.netlify.app
 CORS_ALLOWED_ORIGINS=https://harmonybymdn.netlify.app
 ```
+
+This backend is JWT-based, so the production session driver can safely stay on `file` unless you deliberately add session-backed web features.
 
 If you deploy a preview or custom Netlify domain, add it to `CORS_ALLOWED_ORIGINS` as a comma-separated list and redeploy so Laravel rebuilds its config cache.
 
