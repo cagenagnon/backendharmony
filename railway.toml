@@ -1,0 +1,56 @@
+# =============================================================================
+# railway.toml — Railway deployment configuration
+#
+# Docs: https://docs.railway.app/reference/railway-toml
+# =============================================================================
+
+[build]
+# Tell Railway to use our Dockerfile rather than auto-detecting (Nixpacks).
+# If this repo is in a monorepo, set the service "Root Directory" in Railway
+# (Settings > Source) to the directory that contains Dockerfile and docker/
+# (e.g. harmonybackend) so the build context includes docker/entrypoint.sh, etc.
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# startCommand is intentionally omitted: the Dockerfile ENTRYPOINT already
+# handles tini + entrypoint.sh + supervisord. Duplicating it here would cause
+# entrypoint.sh to run twice.
+
+# Tell Railway which port the container listens on (must match nginx.conf).
+internalPort = 8080
+
+healthcheckPath = "/up"
+# 300s gives the container time to: wait for DB, run migrations, cache config,
+# start supervisord + php-fpm + nginx, before Railway declares it unhealthy.
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+# =============================================================================
+# Environment variables guide
+# =============================================================================
+# Set these in your Railway service's Variables panel.
+# Never commit real values here — this file is version-controlled.
+#
+# REQUIRED (no default — deployment WILL FAIL without these):
+#
+#   APP_KEY         = base64:<32-char-key>  (php artisan key:generate --show)
+#   JWT_SECRET      = <random 64-char string> (php artisan jwt:secret --show)
+#   DB_HOST         = ${{MySQL.MYSQL_HOST}}     (use Railway variable reference)
+#   DB_PORT         = ${{MySQL.MYSQL_PORT}}
+#   DB_DATABASE     = ${{MySQL.MYSQL_DATABASE}}
+#   DB_USERNAME     = ${{MySQL.MYSQL_USER}}
+#   DB_PASSWORD     = ${{MySQL.MYSQL_PASSWORD}}
+#   FEDAPAY_SECRET_KEY = sk_live_...
+#   APP_URL         = https://<your-railway-domain>.up.railway.app
+#
+# RECOMMENDED values to set explicitly:
+#
+#   APP_ENV         = production
+#   APP_DEBUG       = false
+#   DB_CONNECTION   = mysql
+#   LOG_CHANNEL     = stderr
+#   QUEUE_CONNECTION = database
+#   CACHE_STORE     = database
+#   FEDAPAY_MODE    = live

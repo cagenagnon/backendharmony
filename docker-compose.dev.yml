@@ -1,0 +1,46 @@
+# =============================================================================
+# docker-compose.dev.yml — development overrides
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# Differences from production compose:
+#   - Source code is bind-mounted so edits apply without a rebuild
+#   - APP_ENV=local, APP_DEBUG=true
+#   - No bootstrap/cache to avoid stale config caches
+#   - Mailpit added for local email capture
+#   - SKIP_MIGRATIONS=false keeps migrations running on startup
+# =============================================================================
+
+services:
+
+  app:
+    build:
+      target: builder   # use the builder stage so dev tools (Composer) are present
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      SKIP_MIGRATIONS: "false"
+      # Override mail to local Mailpit
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+    volumes:
+      # Bind-mount source so changes are instantly reflected
+      - .:/var/www/html
+      # But keep vendor/ from the image to avoid host/container mismatch
+      - vendor_cache:/var/www/html/vendor
+    ports:
+      - "8080:8080"
+
+  mailpit:
+    image: axllent/mailpit:v1.21
+    restart: unless-stopped
+    ports:
+      - "8025:8025"   # Web UI
+      - "1025:1025"   # SMTP
+    networks:
+      - internal
+
+volumes:
+  vendor_cache:
