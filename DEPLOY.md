@@ -74,7 +74,11 @@ LOG_CHANNEL=stderr
 QUEUE_CONNECTION=database
 CACHE_STORE=database
 FEDAPAY_MODE=live
+FRONTEND_URL=https://harmonybymdn.netlify.app
+CORS_ALLOWED_ORIGINS=https://harmonybymdn.netlify.app
 ```
+
+If you deploy a preview or custom Netlify domain, add it to `CORS_ALLOWED_ORIGINS` as a comma-separated list and redeploy so Laravel rebuilds its config cache.
 
 ---
 

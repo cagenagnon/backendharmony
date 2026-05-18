@@ -1,5 +1,24 @@
 <?php
 
+$allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://harmonybymdn.netlify.app',
+];
+
+if ($customOrigins = env('CORS_ALLOWED_ORIGINS')) {
+    $allowedOrigins = array_merge(
+        $allowedOrigins,
+        array_filter(array_map('trim', explode(',', (string) $customOrigins)))
+    );
+}
+
+if ($frontendUrl = env('FRONTEND_URL')) {
+    $allowedOrigins[] = trim($frontendUrl);
+}
+
+$allowedOrigins = array_values(array_unique(array_filter($allowedOrigins)));
+
 return [
 
     /*
@@ -19,17 +38,13 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'http://localhost:3000',
-        'http://localhost:5173',
-        'harmonybackend-production.up.railway.app',
-        'https://harmonybymdn.netlify.app',
-    ],
+    'allowed_origins' => $allowedOrigins,
 
     // Matches any Netlify domain: yourapp.netlify.app or custom domains.
     // Add your exact Netlify URL via the FRONTEND_URL Railway variable.
     'allowed_origins_patterns' => array_filter([
         '#^https://[\w-]+\.netlify\.app$#',
+        '#^https://[\w-]+\.netlify\.com$#',
         env('FRONTEND_URL') ? '#^' . preg_quote(env('FRONTEND_URL'), '#') . '$#' : null,
     ]),
 
