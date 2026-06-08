@@ -4,6 +4,7 @@ $allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:5173',
     'https://harmonybymdn.netlify.app',
+    'https://harmonyby-mdn.netlify.app',
 ];
 
 if ($customOrigins = env('CORS_ALLOWED_ORIGINS')) {
